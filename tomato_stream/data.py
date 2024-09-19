@@ -1,14 +1,10 @@
 import pandas as pd
-import nb_utils
 import html
 import os
 import requests
 from tomato_stream import utils
 
 pd.set_option("mode.copy_on_write", True)
-nb_utils.set_path()
-
-API_KEY = os.environ["API_KEY"]
 
 
 def get_netflix_catalog() -> pd.DataFrame:
@@ -33,17 +29,14 @@ def get_netflix_catalog() -> pd.DataFrame:
 		.loc[lambda _df: _df["imdb_id"] != ""]
 		.assign(
 			title=lambda _df: _df["title"].apply(html.unescape),
-			link=lambda _df: _df["netflix_id"].apply(
-				lambda x: f"https://www.netflix.com/title/{x}"
-			),
 		)
-		.loc[:, ["title", "title_type", "imdb_id", "link"]]
+		.loc[:, ["title", "title_type", "imdb_id", "netflix_id"]]
 	)
 
 	return catalog
 
 
-def get_rating(imdb_id):
+def get_rating(imdb_id, API_KEY=os.environ["API_KEY"]):
 	params = {"apikey": API_KEY, "i": imdb_id}
 	url = "http://www.omdbapi.com/"
 	response = requests.get(url, params=params)
@@ -55,7 +48,7 @@ def get_rating(imdb_id):
 		genres = response_json.get("Genre", "")
 		runtime = response_json.get("Runtime", "")
 		actors = response_json.get("Actors", "")
-		director = (response_json.get("Director", ""),)
+		director = response_json.get("Director", "")
 		plot = response_json.get("Plot", "")
 		poster = response_json.get("Poster", "")
 
@@ -82,7 +75,9 @@ def get_rating(imdb_id):
 		raise Exception(f"Error: {response.status_code}")
 
 
-def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
+def get_ratings_for_catalog(
+	catalog: pd.DataFrame, API_KEY=os.environ["API_KEY"]
+) -> pd.DataFrame:
 	catalog[
 		[
 			"title_2",
@@ -95,18 +90,22 @@ def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 			"rating",
 			"poster",
 		]
-	] = catalog["imdb_id"].apply(get_rating).apply(pd.Series)
+	] = catalog["imdb_id"].apply(get_rating, args=(API_KEY,)).apply(pd.Series)
 
 	ratings_df = (
 		catalog.loc[(catalog.title == catalog.title_2) & (catalog.rating != "")]
-		.drop(columns=["title_2", "imdb_id"])
+		.assign(
+			link=lambda _df: _df["netflix_id"].apply(
+				lambda x: f"https://www.netflix.com/title/{x}"
+			),
+		)
+		.drop(columns=["title_2", "imdb_id", "netflix_id"])
 		.reset_index(drop=True)
 		.rename(
 			columns={
 				"title": "Titel",
 				"title_type": "Typ",
 				"year": "Jahr",
-				"link": "Link",
 				"genres": "Genres",
 				"runtime": "Dauer",
 				"actors": "Schauspieler",
@@ -114,6 +113,7 @@ def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 				"plot": "Handlung",
 				"rating": "Tomatorscore",
 				"poster": "Poster",
+				"link": "Link",
 			}
 		)
 	)

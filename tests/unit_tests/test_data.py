@@ -10,7 +10,6 @@ def test_data_integrity():
 		"Titel",
 		"Typ",
 		"Jahr",
-		"Link",
 		"Genres",
 		"Dauer",
 		"Schauspieler",
@@ -18,6 +17,7 @@ def test_data_integrity():
 		"Handlung",
 		"Tomatorscore",
 		"Poster",
+		"Link",
 	]
 
 
@@ -25,13 +25,13 @@ def test_get_rating():
 	from tomato_stream.data import get_rating
 
 	imdb_id = "tt0111161"
-	API_KEY = "58977120"
+	api_key = "58977120"
 	title, year, genres, runtime, actors, director, plot, rating, poster = get_rating(
-		imdb_id
+		imdb_id, api_key
 	)
 	assert isinstance(title, str)
 	assert isinstance(year, str)
-	assert isinstance(genres, list)
+	assert isinstance(genres, str)
 	assert isinstance(runtime, str)
 	assert isinstance(actors, str)
 	assert isinstance(director, str)
@@ -48,16 +48,16 @@ def test_get_catalog():
 	assert isinstance(catalog, pd.DataFrame)
 	assert catalog.shape[0] > 0
 	assert catalog.shape[1] == 4
-	assert catalog.columns.tolist() == ["title", "title_type", "year", "link"]
+	assert catalog.columns.tolist() == ["title", "title_type", "imdb_id", "netflix_id"]
 
 
 def test_get_ratings_for_catalog():
 	import pandas as pd
 	from tomato_stream.data import get_ratings_for_catalog, get_netflix_catalog
 
-	catalog = get_netflix_catalog().head(5)
-	API_KEY = "58977120"
-	ratings_df = get_ratings_for_catalog(catalog)
+	catalog = get_netflix_catalog().head(10)
+	api_key = "58977120"
+	ratings_df = get_ratings_for_catalog(catalog, API_KEY=api_key)
 	assert isinstance(ratings_df, pd.DataFrame)
 	assert ratings_df.shape[0] > 0
 	assert ratings_df.shape[1] == 11
@@ -65,7 +65,6 @@ def test_get_ratings_for_catalog():
 		"Titel",
 		"Typ",
 		"Jahr",
-		"Link",
 		"Genres",
 		"Dauer",
 		"Schauspieler",
@@ -73,4 +72,5 @@ def test_get_ratings_for_catalog():
 		"Handlung",
 		"Tomatorscore",
 		"Poster",
+		"Link",
 	]
