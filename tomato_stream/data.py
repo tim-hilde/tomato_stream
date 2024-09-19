@@ -7,6 +7,7 @@ from tomato_stream import utils
 pd.set_option("mode.copy_on_write", True)
 
 API_KEY = os.environ.get("API_KEY", "58977120")
+RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY")
 
 
 def get_netflix_catalog() -> pd.DataFrame:
@@ -18,7 +19,7 @@ def get_netflix_catalog() -> pd.DataFrame:
 	}
 
 	headers = {
-		"x-rapidapi-key": "d2f42f66abmsh88fcea3d1b94b1ap1aa687jsna81b8ab76c56",
+		"x-rapidapi-key": RAPIDAPI_KEY,
 		"x-rapidapi-host": "unogs-unogs-v1.p.rapidapi.com",
 	}
 
