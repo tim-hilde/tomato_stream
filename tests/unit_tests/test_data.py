@@ -25,9 +25,8 @@ def test_get_rating():
 	from tomato_stream.data import get_rating
 
 	imdb_id = "tt0111161"
-	api_key = "58977120"
 	title, year, genres, runtime, actors, director, plot, rating, poster = get_rating(
-		imdb_id, api_key
+		imdb_id
 	)
 	assert isinstance(title, str)
 	assert isinstance(year, str)
@@ -56,8 +55,7 @@ def test_get_ratings_for_catalog():
 	from tomato_stream.data import get_ratings_for_catalog, get_netflix_catalog
 
 	catalog = get_netflix_catalog().head(10)
-	api_key = "58977120"
-	ratings_df = get_ratings_for_catalog(catalog, API_KEY=api_key)
+	ratings_df = get_ratings_for_catalog(catalog)
 	assert isinstance(ratings_df, pd.DataFrame)
 	assert ratings_df.shape[0] > 0
 	assert ratings_df.shape[1] == 11

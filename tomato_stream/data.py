@@ -6,6 +6,8 @@ from tomato_stream import utils
 
 pd.set_option("mode.copy_on_write", True)
 
+API_KEY = os.environ.get("API_KEY", "58977120")
+
 
 def get_netflix_catalog() -> pd.DataFrame:
 	url = "https://unogs-unogs-v1.p.rapidapi.com/search/titles"
@@ -36,7 +38,7 @@ def get_netflix_catalog() -> pd.DataFrame:
 	return catalog
 
 
-def get_rating(imdb_id, API_KEY=os.environ["API_KEY"]):
+def get_rating(imdb_id):
 	params = {"apikey": API_KEY, "i": imdb_id}
 	url = "http://www.omdbapi.com/"
 	response = requests.get(url, params=params)
@@ -75,9 +77,7 @@ def get_rating(imdb_id, API_KEY=os.environ["API_KEY"]):
 		raise Exception(f"Error: {response.status_code}")
 
 
-def get_ratings_for_catalog(
-	catalog: pd.DataFrame, API_KEY=os.environ["API_KEY"]
-) -> pd.DataFrame:
+def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 	catalog[
 		[
 			"title_2",
@@ -90,7 +90,7 @@ def get_ratings_for_catalog(
 			"rating",
 			"poster",
 		]
-	] = catalog["imdb_id"].apply(get_rating, args=(API_KEY,)).apply(pd.Series)
+	] = catalog["imdb_id"].apply(get_rating).apply(pd.Series)
 
 	ratings_df = (
 		catalog.loc[(catalog.title == catalog.title_2) & (catalog.rating != "")]
