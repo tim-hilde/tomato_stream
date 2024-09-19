@@ -25,7 +25,7 @@ def test_get_rating():
 	from tomato_stream.data import get_rating
 
 	imdb_id = "tt0111161"
-	title, year, genres, runtime, actors, director, plot, rating, poster = get_rating(
+	title, rating, year, genres, runtime, actors, director, plot, poster = get_rating(
 		imdb_id
 	)
 	assert isinstance(title, str)
