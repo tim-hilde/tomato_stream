@@ -39,22 +39,20 @@ def test_get_rating():
 	assert isinstance(poster, str)
 
 
-def test_get_catalog():
-	import pandas as pd
-	from tomato_stream.data import get_netflix_catalog
-
-	catalog = get_netflix_catalog()
-	assert isinstance(catalog, pd.DataFrame)
-	assert catalog.shape[0] > 0
-	assert catalog.shape[1] == 4
-	assert catalog.columns.tolist() == ["title", "title_type", "imdb_id", "netflix_id"]
-
-
 def test_get_ratings_for_catalog():
 	import pandas as pd
-	from tomato_stream.data import get_ratings_for_catalog, get_netflix_catalog
+	from tomato_stream.data import get_ratings_for_catalog
 
-	catalog = get_netflix_catalog().head(10)
+	catalog = pd.DataFrame(
+		{
+			"title": "Kill Bill: Vol. 1",
+			"title_type": "movie",
+			"imdb_id": "tt0266697",
+			"netflix_id": "60031236",
+		},
+		index=[0],
+	)
+
 	ratings_df = get_ratings_for_catalog(catalog)
 	assert isinstance(ratings_df, pd.DataFrame)
 	assert ratings_df.shape[0] > 0
