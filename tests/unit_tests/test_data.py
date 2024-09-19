@@ -9,13 +9,13 @@ def test_data_integrity():
 	assert ratings_df.columns.tolist() == [
 		"Titel",
 		"Typ",
+		"Tomatoscore",
 		"Jahr",
 		"Genres",
 		"Dauer",
 		"Schauspieler",
 		"Regisseur",
 		"Handlung",
-		"Tomatorscore",
 		"Poster",
 		"Link",
 	]
@@ -29,13 +29,13 @@ def test_get_rating():
 		imdb_id
 	)
 	assert isinstance(title, str)
+	assert isinstance(rating, int)
 	assert isinstance(year, str)
 	assert isinstance(genres, str)
 	assert isinstance(runtime, str)
 	assert isinstance(actors, str)
 	assert isinstance(director, str)
 	assert isinstance(plot, str)
-	assert isinstance(rating, int)
 	assert isinstance(poster, str)
 
 
@@ -60,13 +60,13 @@ def test_get_ratings_for_catalog():
 	assert ratings_df.columns.tolist() == [
 		"Titel",
 		"Typ",
+		"Tomatoscore",
 		"Jahr",
 		"Genres",
 		"Dauer",
 		"Schauspieler",
 		"Regisseur",
 		"Handlung",
-		"Tomatorscore",
 		"Poster",
 		"Link",
 	]
