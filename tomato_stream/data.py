@@ -2,12 +2,13 @@ import pandas as pd
 import html
 import os
 import requests
+import streamlit as st
 from tomato_stream import utils
 
 pd.set_option("mode.copy_on_write", True)
 
 API_KEY = os.environ.get("API_KEY", "58977120")
-RAPIDAPI_KEY = os.environ.get("RAPIDAPI_KEY")
+RAPID_API_KEY = os.environ.get("RAPID_API_KEY")
 
 
 def get_netflix_catalog() -> pd.DataFrame:
@@ -19,7 +20,7 @@ def get_netflix_catalog() -> pd.DataFrame:
 	}
 
 	headers = {
-		"x-rapidapi-key": RAPIDAPI_KEY,
+		"x-rapidapi-key": RAPID_API_KEY,
 		"x-rapidapi-host": "unogs-unogs-v1.p.rapidapi.com",
 	}
 
@@ -65,13 +66,13 @@ def get_rating(imdb_id):
 
 		return (
 			title,
+			rotten_tomatoes_rating,
 			year,
 			genres,
 			runtime,
 			actors,
 			director,
 			plot,
-			rotten_tomatoes_rating,
 			poster,
 		)
 	else:
@@ -82,13 +83,13 @@ def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 	catalog[
 		[
 			"title_2",
+			"rating",
 			"year",
 			"genres",
 			"runtime",
 			"actors",
 			"director",
 			"plot",
-			"rating",
 			"poster",
 		]
 	] = catalog["imdb_id"].apply(get_rating).apply(pd.Series)
@@ -106,19 +107,18 @@ def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 			columns={
 				"title": "Titel",
 				"title_type": "Typ",
+				"rating": "Tomatoscore",
 				"year": "Jahr",
 				"genres": "Genres",
 				"runtime": "Dauer",
 				"actors": "Schauspieler",
 				"director": "Regisseur",
 				"plot": "Handlung",
-				"rating": "Tomatorscore",
 				"poster": "Poster",
 				"link": "Link",
 			}
 		)
 	)
-	ratings_df.to_pickle(utils.get_output_path("ratings.pkl"))
 
 	return ratings_df
 
@@ -126,9 +126,12 @@ def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 def get_new_ratings() -> pd.DataFrame:
 	catalog = get_netflix_catalog()
 	ratings_df = get_ratings_for_catalog(catalog)
+
+	ratings_df.to_pickle(utils.get_output_path("ratings.pkl"))
 	return ratings_df
 
 
+@st.cache_data
 def load_ratings() -> pd.DataFrame:
 	ratings_df = pd.read_pickle(utils.get_output_path("ratings.pkl"))
 	return ratings_df
