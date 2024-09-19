@@ -49,7 +49,8 @@ def test_get_ratings_for_catalog():
 			"title_type": "movie",
 			"imdb_id": "tt0266697",
 			"netflix_id": "60031236",
-		}
+		},
+		index=[0],
 	)
 
 	ratings_df = get_ratings_for_catalog(catalog)
