@@ -179,7 +179,7 @@ data/raw/**
 !data/processed
 data/processed/**
 !data/processed/.gitkeep
-!data/outputs
+!data/outputs/**
 # data/outputs/**
 !data/outputs/.gitkeep
 
