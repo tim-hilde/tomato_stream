@@ -13,7 +13,7 @@ API_KEY = os.environ.get("API_KEY", "58977120")
 RAPID_API_KEY = os.environ.get("RAPID_API_KEY")
 
 
-def get_netflix_catalog(last_run: str) -> pd.DataFrame:
+def get_netflix_catalog() -> pd.DataFrame:
 	url = "https://unogs-unogs-v1.p.rapidapi.com/search/titles"
 
 	params = {
@@ -30,15 +30,12 @@ def get_netflix_catalog(last_run: str) -> pd.DataFrame:
 
 	results = response.json()["results"]
 
-	last_run_date = pd.to_datetime(last_run)
-
 	catalog = (
 		pd.DataFrame(results)
 		.assign(
 			title=lambda _df: _df["title"].apply(html.unescape),
-			title_date=lambda _df: pd.to_datetime(_df["title_date"], format="%Y-%m-%d"),
 		)
-		.loc[lambda _df: (_df["imdb_id"] != "") & (_df["title_date"] >= last_run_date)]
+		.loc[lambda _df: (_df["imdb_id"] != "")]
 		.loc[:, ["title", "title_type", "imdb_id", "netflix_id"]]
 	)
 
