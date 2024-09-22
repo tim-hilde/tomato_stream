@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from tomato_stream.data import load_ratings
+from tomato_stream.data import load_from_gcloud
+from st_files_connection import FilesConnection
 
 st.set_page_config(
 	page_title="Tomato Stream",
@@ -9,7 +10,9 @@ st.set_page_config(
 	initial_sidebar_state="collapsed",
 )
 
-ratings_df = load_ratings()
+conn = st.connection("gcs", type=FilesConnection)
+
+ratings_df = conn.read("tomato-stream-database/ratings.csv", input_format="csv")
 
 # Add a title and description
 st.title("🍅 Tomato Stream")

@@ -1,8 +1,8 @@
 def test_data_integrity():
 	import pandas as pd
-	from tomato_stream.data import load_ratings
+	from tomato_stream.data import load_from_gcloud
 
-	ratings_df = load_ratings()
+	ratings_df = load_from_gcloud()
 	assert isinstance(ratings_df, pd.DataFrame)
 	assert ratings_df.shape[0] > 0
 	assert ratings_df.shape[1] == 11

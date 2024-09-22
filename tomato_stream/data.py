@@ -1,9 +1,11 @@
 import pandas as pd
+import time
 import html
 import os
 import requests
 import streamlit as st
 from tomato_stream import utils
+from google.cloud import storage
 
 pd.set_option("mode.copy_on_write", True)
 
@@ -11,7 +13,7 @@ API_KEY = os.environ.get("API_KEY", "58977120")
 RAPID_API_KEY = os.environ.get("RAPID_API_KEY")
 
 
-def get_netflix_catalog() -> pd.DataFrame:
+def get_netflix_catalog(last_run: str) -> pd.DataFrame:
 	url = "https://unogs-unogs-v1.p.rapidapi.com/search/titles"
 
 	params = {
@@ -28,12 +30,15 @@ def get_netflix_catalog() -> pd.DataFrame:
 
 	results = response.json()["results"]
 
+	last_run_date = pd.to_datetime(last_run)
+
 	catalog = (
 		pd.DataFrame(results)
-		.loc[lambda _df: _df["imdb_id"] != ""]
 		.assign(
 			title=lambda _df: _df["title"].apply(html.unescape),
+			title_date=lambda _df: pd.to_datetime(_df["title_date"], format="%Y-%m-%d"),
 		)
+		.loc[lambda _df: (_df["imdb_id"] != "") & (_df["title_date"] >= last_run_date)]
 		.loc[:, ["title", "title_type", "imdb_id", "netflix_id"]]
 	)
 
@@ -43,7 +48,14 @@ def get_netflix_catalog() -> pd.DataFrame:
 def get_rating(imdb_id):
 	params = {"apikey": API_KEY, "i": imdb_id}
 	url = "http://www.omdbapi.com/"
-	response = requests.get(url, params=params)
+
+	for _ in range(3):  # Retry 3 times
+		try:
+			response = requests.get(url, params=params)
+		except requests.exceptions.ConnectionError:
+			time.sleep(2)  # Wait before retrying
+			continue
+
 	if response.status_code == 200:
 		response_json = response.json()
 
@@ -123,15 +135,12 @@ def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 	return ratings_df
 
 
-def get_new_ratings() -> pd.DataFrame:
-	catalog = get_netflix_catalog()
-	ratings_df = get_ratings_for_catalog(catalog)
-
-	ratings_df.to_pickle(utils.get_output_path("ratings.pkl"))
-	return ratings_df
-
-
 @st.cache_data
-def load_ratings() -> pd.DataFrame:
-	ratings_df = pd.read_pickle(utils.get_output_path("ratings.pkl"))
+def load_from_gcloud() -> pd.DataFrame:
+	ratings_df = pd.read_csv("gs://tomato-stream-database/ratings.csv")
+
 	return ratings_df
+
+
+def save_to_gcloud(ratings_df):
+	ratings_df.to_csv("gs://tomato-stream-database/ratings.csv", index=False)
