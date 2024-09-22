@@ -1,4 +1,5 @@
 import pandas as pd
+import time
 import html
 import os
 import requests
@@ -47,7 +48,14 @@ def get_netflix_catalog(last_run: str) -> pd.DataFrame:
 def get_rating(imdb_id):
 	params = {"apikey": API_KEY, "i": imdb_id}
 	url = "http://www.omdbapi.com/"
-	response = requests.get(url, params=params)
+
+	for _ in range(3):  # Retry 3 times
+		try:
+			response = requests.get(url, params=params)
+		except requests.exceptions.ConnectionError:
+			time.sleep(2)  # Wait before retrying
+			continue
+
 	if response.status_code == 200:
 		response_json = response.json()
 
