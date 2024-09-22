@@ -173,3 +173,5 @@ cython_debug/
 
 # Models
 models/**
+
+gcloud_credentials.json
