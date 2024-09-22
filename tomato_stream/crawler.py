@@ -21,6 +21,6 @@ if __name__ == "__main__":
 		all_ratings = new_ratings_df
 
 	with open(utils.get_project_path("last_run.txt"), "w") as file:
-		file.write(date.today.isoformat())
+		file.write(date.today().isoformat())
 
 	save_to_gcloud(all_ratings)
