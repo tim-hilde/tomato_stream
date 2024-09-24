@@ -12,6 +12,7 @@ streamlit = "^1.38.0"
 google-cloud-storage = "^2.18.2"
 st-files-connection = "^0.1.0"
 gcsfs = "^2024.9.0.post1"
+cloudscraper = "^1.2.71"
 
 [tool.poetry.group.dev.dependencies]
 ipdb = "^0.13.13"
