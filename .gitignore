@@ -175,3 +175,4 @@ cython_debug/
 models/**
 
 gcloud_credentials.json
+secrets.toml
