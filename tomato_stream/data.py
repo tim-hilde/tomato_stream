@@ -26,7 +26,12 @@ def get_netflix_catalog() -> pd.DataFrame:
 		"x-rapidapi-host": "unogs-unogs-v1.p.rapidapi.com",
 	}
 
-	response = requests.get(url, headers=headers, params=params)
+	response = requests.get(
+		url,
+		headers=headers,
+		params=params,
+		timeout=300,
+	)
 
 	results = response.json()["results"]
 
@@ -38,7 +43,7 @@ def get_netflix_catalog() -> pd.DataFrame:
 		.loc[lambda _df: (_df["imdb_id"] != "")]
 		.loc[:, ["title", "title_type", "imdb_id", "netflix_id"]]
 	)
-
+	print(f"Got catalog with {len(catalog)} entries")
 	return catalog
 
 
@@ -48,7 +53,7 @@ def get_rating(imdb_id):
 
 	for _ in range(3):  # Retry 3 times
 		try:
-			response = requests.get(url, params=params)
+			response = requests.get(url, params=params, timeout=300)
 		except requests.exceptions.ConnectionError:
 			time.sleep(2)  # Wait before retrying
 			continue
@@ -85,7 +90,7 @@ def get_rating(imdb_id):
 			poster,
 		)
 	else:
-		raise Exception(f"Error: {response.status_code}")
+		raise Exception(f"Error: {response.status_code}\nContent: {response.content}")
 
 
 def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
