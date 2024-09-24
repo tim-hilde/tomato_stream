@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-from tomato_stream.data import load_from_gcloud
 from st_files_connection import FilesConnection
 
 st.set_page_config(
@@ -60,6 +59,7 @@ st.data_editor(
 		"Poster": st.column_config.ImageColumn(
 			"Poster", help="Streamlit app preview screenshots"
 		),
+		"Link": st.column_config.LinkColumn(),
 	},
 	column_order=[
 		"Poster",
