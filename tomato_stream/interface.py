@@ -34,6 +34,21 @@ elif selection == "Serien":
 		columns=["Typ"]
 	)
 
+ratings_df = ratings_df.sort_values(by="Tomatoscore", ascending=False)
+
+genres = []
+
+for genre in ratings_df.loc[:, "Genres"]:
+	for single_genre in genre.split(", "):
+		genres.append(single_genre)
+
+genre_selection = st.multiselect(
+	"Wähle Sie ein oder mehrere Genre aus", set(genres), default=None
+)
+
+for genre in genre_selection:
+	ratings_df = ratings_df.loc[ratings_df["Genres"].str.contains(genre), :]
+
 st.data_editor(
 	ratings_df,
 	height=800,
