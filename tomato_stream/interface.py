@@ -42,8 +42,11 @@ for genre in ratings_df.loc[:, "Genres"]:
 	for single_genre in genre.split(", "):
 		genres.append(single_genre)
 
+genres = list(set(genres))
+genres.sort()
+
 genre_selection = st.multiselect(
-	"Wähle Sie ein oder mehrere Genre aus", set(genres), default=None
+	"Wähle Sie ein oder mehrere Genre aus", genres, default=None
 )
 
 for genre in genre_selection:
