@@ -4,8 +4,7 @@ import html
 import os
 import requests
 import streamlit as st
-from tomato_stream import utils
-from google.cloud import storage
+import cloudscraper
 
 pd.set_option("mode.copy_on_write", True)
 
@@ -30,7 +29,6 @@ def get_netflix_catalog() -> pd.DataFrame:
 		url,
 		headers=headers,
 		params=params,
-		timeout=300,
 	)
 
 	results = response.json()["results"]
@@ -51,12 +49,8 @@ def get_rating(imdb_id):
 	params = {"apikey": API_KEY, "i": imdb_id}
 	url = "http://www.omdbapi.com/"
 
-	for _ in range(3):  # Retry 3 times
-		try:
-			response = requests.get(url, params=params, timeout=300)
-		except requests.exceptions.ConnectionError:
-			time.sleep(2)  # Wait before retrying
-			continue
+	scraper = cloudscraper.create_scraper()
+	response = scraper.get(url, params=params)
 
 	if response.status_code == 200:
 		response_json = response.json()
