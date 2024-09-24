@@ -13,7 +13,7 @@ RUN touch readme.md
 RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 
 COPY tomato_stream tomato_stream
-COPY .env .envrc last_run.txt gcloud_credentials.json ./
+COPY .env gcloud_credentials.json ./
 
 RUN poetry install --without dev
 
