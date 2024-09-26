@@ -50,7 +50,13 @@ def get_rating(imdb_id):
 	url = "http://www.omdbapi.com/"
 
 	scraper = cloudscraper.create_scraper()
+	start_time = time.time()
 	response = scraper.get(url, params=params)
+	response_time = time.time() - start_time  # Calculate the elapsed time
+	log_message = f"{response_time:.4f} seconds"
+
+	with open("response_time.log", "a+") as f:  # Append to a log file
+		f.write(log_message)
 
 	if response.status_code == 200:
 		response_json = response.json()
