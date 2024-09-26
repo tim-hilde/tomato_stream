@@ -45,10 +45,11 @@ def get_netflix_catalog() -> pd.DataFrame:
 	return catalog
 
 
-def get_rating(imdb_id, scraper):
+def get_rating(imdb_id):
 	params = {"apikey": API_KEY, "i": imdb_id}
 	url = "http://www.omdbapi.com/"
 
+	scraper = cloudscraper.create_scraper()
 	response = scraper.get(url, params=params)
 
 	if response.status_code == 200:
@@ -87,7 +88,6 @@ def get_rating(imdb_id, scraper):
 
 
 def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
-	scraper = cloudscraper.create_scraper()
 	catalog[
 		[
 			"title_2",
@@ -100,7 +100,7 @@ def get_ratings_for_catalog(catalog: pd.DataFrame) -> pd.DataFrame:
 			"plot",
 			"poster",
 		]
-	] = catalog["imdb_id"].apply(get_rating, args=(scraper,)).apply(pd.Series)
+	] = catalog["imdb_id"].apply(get_rating).apply(pd.Series)
 
 	ratings_df = (
 		catalog.loc[(catalog.title == catalog.title_2) & (catalog.rating != "")]
