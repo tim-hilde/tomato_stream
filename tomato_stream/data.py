@@ -51,7 +51,7 @@ def get_rating(imdb_id):
 
 	scraper = cloudscraper.create_scraper()
 	start_time = time.time()
-	response = scraper.get(url, params=params)
+	response = scraper.get(url, params=params, timeout=300)
 	response_time = time.time() - start_time  # Calculate the elapsed time
 	log_message = f"{response_time:.4f} seconds"
 
