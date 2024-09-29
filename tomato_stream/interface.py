@@ -33,7 +33,13 @@ elif selection == "Serien":
 		columns=["Typ"]
 	)
 
-ratings_df = ratings_df.sort_values(by="Tomatoscore", ascending=False)
+ratings_df = (
+	ratings_df.sort_values(by="Tomatoscore", ascending=False)
+	.assign(
+		Dauer=lambda _df: _df["Dauer"].str.replace(" min", "").astype(float),
+	)
+	.rename(columns={"Dauer": "Dauer (min)"})
+)
 
 genres = []
 
@@ -50,6 +56,27 @@ genre_selection = st.multiselect(
 
 for genre in genre_selection:
 	ratings_df = ratings_df.loc[ratings_df["Genres"].str.contains(genre), :]
+
+genre_anti_selection = st.multiselect(
+	"Wähle Sie ein oder mehrere Genre aus, die **nicht** enthalten sein sollen",
+	genres,
+	default=None,
+)
+
+for genre in genre_anti_selection:
+	ratings_df = ratings_df.loc[~ratings_df["Genres"].str.contains(genre), :]
+
+duration_range = range(0, int(ratings_df["Dauer (min)"].max()) + 10, 10)
+
+dauer = st.select_slider(
+	"Dauer (Minuten)",
+	options=duration_range,
+	value=[min(duration_range), max(duration_range)],
+)
+st.write(dauer)
+ratings_df = ratings_df.loc[
+	(ratings_df["Dauer (min)"] >= dauer[0]) & (ratings_df["Dauer (min)"] <= dauer[1]), :
+]
 
 st.data_editor(
 	ratings_df,
@@ -68,7 +95,7 @@ st.data_editor(
 		"Tomatoscore",
 		"Jahr",
 		"Genres",
-		"Dauer",
+		"Dauer (min)",
 		"Handlung",
 		"Schauspieler",
 		"Regisseur",
