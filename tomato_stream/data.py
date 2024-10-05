@@ -51,12 +51,18 @@ def get_rating(imdb_id):
 
 	scraper = cloudscraper.create_scraper()
 	start_time = time.time()
-	response = scraper.get(url, params=params, timeout=300)
-	response_time = time.time() - start_time  # Calculate the elapsed time
-	log_message = f"{response_time:.4f} seconds"
+	for _ in range(3):  # Retry 3 times
+		try:
+			response = scraper.get(url, params=params, timeout=300)
+			response_time = time.time() - start_time  # Calculate the elapsed time
+			log_message = f"{response_time:.4f} seconds"
 
-	with open("response_time.log", "a+") as f:  # Append to a log file
-		f.write(log_message)
+			with open("response_time.log", "a+") as f:  # Append to a log file
+				f.write(log_message)
+
+		except requests.exceptions.ConnectionError:
+			time.sleep(2)  # Wait before retrying
+			continue
 
 	if response.status_code == 200:
 		response_json = response.json()
